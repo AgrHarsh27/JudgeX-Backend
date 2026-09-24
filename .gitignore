@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# SQLite databases / Flask instance
+instance/*.db
+*.sqlite3
+
+# Temporary execution files
+*.tmp
+*.exe
+*.out
+*.o
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
