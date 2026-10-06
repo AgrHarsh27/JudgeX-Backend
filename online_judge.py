@@ -4,11 +4,12 @@ from judge import judge
 from werkzeug.security import generate_password_hash , check_password_hash
 import jwt
 from datetime import datetime , timedelta
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://neondb_owner:npg_c3pLDZe2mfWo@ep-falling-art-b59m01zo-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'Super Secret'
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 db.init_app(app)
 
 
