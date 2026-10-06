@@ -151,23 +151,35 @@ erDiagram
 
 ---
 
-## ⚙ Code Execution & Judging Pipeline
+## ⚙ Code Execution & Sandboxing Pipeline
 
 Code execution is isolated per submission inside [`execute_code.py`](file:///d:/projects/online_judge/execute_code.py):
 
-1. **Temporary File Generation**: Source code is written to an ephemeral file (`tempfile.NamedTemporaryFile`).
-2. **Compilation (C++)**:
-   - Compiled with `g++ <source>.cpp -o <binary>`.
-   - If compilation fails, the stderr log is captured and `COMPILATION_ERROR` is returned immediately.
-3. **Execution & Sandboxing Bounds**:
-   - Run via `subprocess.run` with a hard timeout of **2.0 seconds**.
-   - Input data is passed directly via `stdin`.
-   - Captures `stdout` and `stderr` independently.
-4. **Outcome Evaluation**:
-   - **Timeout**: Returns `TIME_LIMIT_EXCEEDED`.
+1. **Sandbox Detection & Mode Selection**:
+   - Checks if Docker daemon is available or `USE_DOCKER` environment variable is explicitly set (`true`/`false`).
+   - Runs in **Docker Sandbox Mode** if available, or seamlessly defaults to **Host Execution Mode**.
+2. **Container Isolation & Security Bounds**:
+   - **Network Isolation**: `--network none` (Prevents outbound connections or network probing).
+   - **RAM Ceiling**: `--memory 256m --memory-swap 256m` (Prevents OOM exhaustion and swap abuse).
+   - **CPU Quota**: `--cpus 1.0` (Prevents CPU hogging / infinite loop Denial of Service).
+   - **Read-Only Storage**: Mounted volume containing source code is attached read-only (`-v <temp_dir>:/sandbox:ro`) during execution phase.
+3. **Execution Steps**:
+   - **Python**: Runs in container (`python:3.10-alpine` or custom image) with standard input piped via `stdin`.
+   - **C++**: Compiles inside container (`gcc:latest` with `g++ -O2`), returning `COMPILATION_ERROR` if build fails. Executes compiled binary in read-only sandbox.
+4. **Environment Variables Configuration**:
+   | Variable | Description | Default |
+   | :--- | :--- | :--- |
+   | `USE_DOCKER` | Force enable/disable Docker sandbox (`true`/`false`) | Auto-detect |
+   | `DOCKER_PYTHON_IMAGE` | Docker image for Python execution | `python:3.10-alpine` |
+   | `DOCKER_CPP_IMAGE` | Docker image for C++ execution | `gcc:latest` |
+   | `EXECUTION_MAX_MEMORY` | Container RAM limit | `256m` |
+   | `EXECUTION_MAX_CPUS` | Container CPU quota | `1.0` |
+   | `EXECUTION_TIMEOUT` | Hard execution timeout in seconds | `2.0` |
+5. **Outcome Evaluation**:
+   - **TimeoutExpired**: Returns `TIME_LIMIT_EXCEEDED`.
    - **Non-zero exit code**: Returns `RUNTIME_ERROR`.
    - **Zero exit code**: Compares trimmed `stdout` against `expected_output.strip()`.
-5. **Cleanup**: Ephemeral `.py`, `.cpp`, and `.exe` or compiled binaries are deleted inside a `finally` block to prevent disk bloat.
+6. **Cleanup**: Ephemeral temporary directory and mounted artifacts are cleaned up safely in a `finally` block.
 
 ---
 

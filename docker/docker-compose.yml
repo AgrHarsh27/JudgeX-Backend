@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  judgex-python-sandbox:
+    build:
+      context: ./python
+    image: judgex-python-sandbox:latest
+
+  judgex-cpp-sandbox:
+    build:
+      context: ./cpp
+    image: judgex-cpp-sandbox:latest

@@ -61,7 +61,7 @@ def login():
         'uId' : user.id,
         'token' : token,
         'isAdmin' : user.is_admin
-    }),2006
+    }),200
     
 @app.route('/users')
 def users():
