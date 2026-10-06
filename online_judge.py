@@ -6,7 +6,7 @@ import jwt
 from datetime import datetime , timedelta
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///online_judge.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://neondb_owner:npg_c3pLDZe2mfWo@ep-falling-art-b59m01zo-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'Super Secret'
 db.init_app(app)
@@ -60,7 +60,7 @@ def login():
         'uId' : user.id,
         'token' : token,
         'isAdmin' : user.is_admin
-    }),200
+    }),2006
     
 @app.route('/users')
 def users():
